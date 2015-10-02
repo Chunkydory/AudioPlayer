@@ -1,0 +1,29 @@
+<head>
+	<title>Audio Player in JavaScript using Web Audio & jQuery</title>
+	<link rel="stylesheet" type="text/css" href="./style.css">
+	<script src="//code.jquery.com/jquery-1.11.3.min.js"></script> 
+	<script src="./audio_player.js"></script>
+</head>
+<body>
+	<div id="container"></div>
+	<script>
+		var music_context = new (window.AudioContext || window.webkitAudioContext)();
+		var container = $("#container");
+		
+		for(var i = 0; i < 10; i++)
+		{
+			var song = 
+			{
+				song_id: i, 
+				title:"Field-Vision", 
+				artist:"Valentijn Nieman", 
+				img: "cover.jpeg", 
+				filename: "field_vision_25092015.mp3",
+				likes: 1, 
+				dislikes: 0 
+			}
+
+			var a = new AudioPlayer(0, song, music_context, container, false);
+		}
+	</script>
+</body>
