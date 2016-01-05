@@ -16,7 +16,7 @@ function AudioPlayer(index, song, context, parent, replace)
     this.analyser.smoothingTimeConstant = 0.3;
     this.analyser.fftSize = 1024;
     
-    this.url = data_url + song.filename;
+    this.url = './audio/field_vision_25092015.mp3';
     // create html elements and select them using jQuery
     this.create_elements(replace);
     
@@ -64,7 +64,7 @@ AudioPlayer.prototype.draw_frequencies = function()
 AudioPlayer.prototype.create_elements = function(replace)
 {   // creates the html elements of the player as needed
     var html_string = "<div class='song' id=" + "song_" + this.index  + ">" + 
-    "<img class='img-responsive' src=/Snowball/" + this.song.img + ">" + 
+    "<img class='img-responsive' src=./img/" + this.song.img + ">" + 
     "<div class='header' id='song-header'>" +
     "<div class='audio-controls'><button id='play_" + this.song.song_id + "' class='play-button'></button>" +
     "<div class='timeline' id='tl_" + this.song.song_id + "'><canvas class='waveform-canvas' id='canvas_" + 
@@ -95,7 +95,7 @@ AudioPlayer.prototype.bind_events = function()
 
 AudioPlayer.prototype.load_song = function()
 {   // standard web audio way of loading an audiofile with AJAX
-    this.button.css("background-image", "url(" + base_url + "assets/img/progression.gif" + ")");
+    this.button.css("background-image", "url('./img/progression.gif'" + ")");
     var xhr = new XMLHttpRequest();
     xhr.open('GET', this.url, true);
     xhr.responseType = 'arraybuffer';
@@ -104,7 +104,7 @@ AudioPlayer.prototype.load_song = function()
         this.context.decodeAudioData(xhr.response, function(buffer)
         {
             this.buffer = buffer;
-            this.button.css("background-image", "url(" + base_url + "assets/img/pause.png" + ")");
+            this.button.css("background-image", "url('./img/pause.png'" + ")");
             this.draw();
             this.play();
         }.bind(this));
@@ -148,7 +148,7 @@ AudioPlayer.prototype.play = function(position)
     this.source.start(this.context.currentTime, this.position);
     this.playing = true;
     
-    this.button.css("background-image", "url(" + base_url + "assets/img/pause.png" + ")");
+    this.button.css("background-image", "url('./img/pause.png'" + ")");
 };
 
 AudioPlayer.prototype.pause = function()
@@ -160,7 +160,7 @@ AudioPlayer.prototype.pause = function()
         this.position = this.context.currentTime - this.start_time; // remember position
         this.playing = false;
         
-        this.button.css("background-image", "url(" + base_url + "assets/img/play.png" + ")");
+        this.button.css("background-image", "url('./img/play.png'" + ")");
     }
 };
 

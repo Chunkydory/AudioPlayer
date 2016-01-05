@@ -65,21 +65,21 @@
 }
 
 #scloud-button{
-    background: url(../img/scloud.png) no-repeat;
+    background: url(./img/scloud.png) no-repeat;
     background-size: 100%;    
 }
 #spotify-button{
-    background: url(../img/spotify.png) no-repeat;
+    background: url(./img/spotify.png) no-repeat;
     background-size: 100%;    
 }
 
 #bandcamp-button{
-    background: url(../img/bandcamp.png) no-repeat;
+    background: url(./img/bandcamp.png) no-repeat;
     background-size: 100%;    
 }
 
 #itunes-button{
-    background: url(../img/itunes.png) no-repeat;
+    background: url(./img/itunes.png) no-repeat;
     background-size: 100%;
 }
 
@@ -97,7 +97,7 @@
 
     cursor: pointer;
 
-    background: url(../img/play.png);
+    background: url(./img/play.png);
     background-size: cover;
     float: left;
     margin-top: 6px;
