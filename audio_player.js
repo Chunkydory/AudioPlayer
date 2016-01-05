@@ -5,8 +5,6 @@
     classes are upper CamelCase, normal functions are lowercase/underscored
  */
 
-var base_url = "./img/";
-
 function AudioPlayer(index, song, context, parent, replace)
 {   // the AudioPlayer class
     this.index = index;                         // position in songs_array
@@ -18,8 +16,7 @@ function AudioPlayer(index, song, context, parent, replace)
     this.analyser.smoothingTimeConstant = 0.3;
     this.analyser.fftSize = 1024;
     
-    this.url = "./audio/" + song.filename;
-    
+    this.url = data_url + song.filename;
     // create html elements and select them using jQuery
     this.create_elements(replace);
     
@@ -38,22 +35,43 @@ function AudioPlayer(index, song, context, parent, replace)
     this.playpos = $('#pp_' + song.song_id);
     this.anticipate = $('#a_' + song.song_id);
     
-    this.load_song();
-    
+    this.bind_events();     // binds mouseclicks etc
+        
     //this.print_song();
 }
+
+AudioPlayer.prototype.draw_frequencies = function()
+{          
+    var gradient = this.canvas_context.createLinearGradient(0,0,0,300);
+    gradient.addColorStop(1,'#000000');
+    gradient.addColorStop(0.75,'#005942');
+    gradient.addColorStop(0.25,'#66FFFF');
+    gradient.addColorStop(0,'#FFFFCC');
+    
+    this.dataArray = new Uint8Array(this.analyser.frequencyBinCount);
+    this.analyser.getByteFrequencyData(this.dataArray);
+    
+    this.canvas_context.clearRect(0, 0, this.canvas_width, this.canvas_height);
+    this.canvas_context.fillStyle = gradient;
+    
+    for(var i = 0; i < this.dataArray.length; i++)
+    {
+        var value = this.dataArray[i];
+        this.canvas_context.fillRect(i*3, 250-value, 2, 325);
+    }
+};
 
 AudioPlayer.prototype.create_elements = function(replace)
 {   // creates the html elements of the player as needed
     var html_string = "<div class='song' id=" + "song_" + this.index  + ">" + 
-    "<img src=" + base_url + this.song.img + ">" + 
+    "<img class='img-responsive' src=/Snowball/" + this.song.img + ">" + 
     "<div class='header' id='song-header'>" +
     "<div class='audio-controls'><button id='play_" + this.song.song_id + "' class='play-button'></button>" +
     "<div class='timeline' id='tl_" + this.song.song_id + "'><canvas class='waveform-canvas' id='canvas_" + 
      this.song.song_id +"'></canvas><div class='progress' id='p_" + this.song.song_id + "'></div>" + 
     "<div class='anticipate' id='a_" + this.song.song_id + "'></div><div class='play-pos' id='pp_" + this.song.song_id + "'></div></div></div>" +
-    "<div id='likes-amount'><div id='green-circle'></div><div id='number'>" + this.song.likes + "</div></div>" +
-    "<div id='dislikes-amount'><div id='red-circle'></div><div id='number'>" + this.song.dislikes + "</div></div></div>" +
+    "<div id='likes-amount'><div id='green-circle'></div><div class='number'>" + this.song.likes + "</div></div>" +
+    "<div id='dislikes-amount'><div id='red-circle'></div><div class='number'>" + this.song.dislikes + "</div></div></div>" +
     "<div class='sider' id='song-sider'>" + 
     "<div class='link-controls'>" + "<a class='link-button' id='scloud-button'></a>" + 
     "<a class='link-button' id='spotify-button'></a><a class='link-button' id='bandcamp-button'></a>" +
@@ -77,6 +95,7 @@ AudioPlayer.prototype.bind_events = function()
 
 AudioPlayer.prototype.load_song = function()
 {   // standard web audio way of loading an audiofile with AJAX
+    this.button.css("background-image", "url(" + base_url + "assets/img/progression.gif" + ")");
     var xhr = new XMLHttpRequest();
     xhr.open('GET', this.url, true);
     xhr.responseType = 'arraybuffer';
@@ -85,9 +104,9 @@ AudioPlayer.prototype.load_song = function()
         this.context.decodeAudioData(xhr.response, function(buffer)
         {
             this.buffer = buffer;
-            this.bind_events();     // binds mouseclicks etc, only when done loading!
-            this.button.css("background-image", "url(" + base_url + "play.png" + ")");
+            this.button.css("background-image", "url(" + base_url + "assets/img/pause.png" + ")");
             this.draw();
+            this.play();
         }.bind(this));
     }.bind(this);
     xhr.send();
@@ -107,7 +126,12 @@ AudioPlayer.prototype.toggle = function()
 {   // toggles between pause and play
     if (!this.playing)
     {
-        this.play();
+        if(!this.loaded)
+        {
+            this.load_song();
+            this.loaded = true;
+        }
+        else this.play();
     }
     else if (this.playing)
     {
@@ -124,7 +148,7 @@ AudioPlayer.prototype.play = function(position)
     this.source.start(this.context.currentTime, this.position);
     this.playing = true;
     
-    this.button.css("background-image", "url(" + base_url + "pause.png" + ")");
+    this.button.css("background-image", "url(" + base_url + "assets/img/pause.png" + ")");
 };
 
 AudioPlayer.prototype.pause = function()
@@ -136,7 +160,7 @@ AudioPlayer.prototype.pause = function()
         this.position = this.context.currentTime - this.start_time; // remember position
         this.playing = false;
         
-        this.button.css("background-image", "url(" + base_url + "play.png" + ")");
+        this.button.css("background-image", "url(" + base_url + "assets/img/play.png" + ")");
     }
 };
 
@@ -164,27 +188,6 @@ AudioPlayer.prototype.draw = function()
         this.draw_frequencies();
     }
         requestAnimationFrame(this.draw.bind(this));
-};
-
-AudioPlayer.prototype.draw_frequencies = function()
-{          
-    var gradient = this.canvas_context.createLinearGradient(0,0,0,300);
-    gradient.addColorStop(1,'#000000');
-    gradient.addColorStop(0.75,'#005942');
-    gradient.addColorStop(0.25,'#66FFFF');
-    gradient.addColorStop(0,'#FFFFCC');
-    
-    this.dataArray = new Uint8Array(this.analyser.frequencyBinCount);
-    this.analyser.getByteFrequencyData(this.dataArray);
-    
-    this.canvas_context.clearRect(0, 0, this.canvas_width, this.canvas_height);
-    this.canvas_context.fillStyle = gradient;
-    
-    for(var i = 0; i < this.dataArray.length; i++)
-    {
-        var value = this.dataArray[i];
-        this.canvas_context.fillRect(i*5, 250-value, 2, 325);
-    }
 };
 
 AudioPlayer.prototype.seek = function(time)
@@ -237,4 +240,9 @@ AudioPlayer.prototype.mouse_up = function()
         this.seek(time);
         this.dragging = false;
     }
+};
+
+AudioPlayer.prototype.print_song = function()
+{   // debug
+    return this.button;
 };
